@@ -1,26 +1,18 @@
 # e-learner
 
-Serwer hostujący materiały do nauki w postaci plików HTML. Każdy plik w
-folderze `materials/` jest dostępny pod ścieżką o tej samej nazwie, np.
-`materials/fizyka.html` jest dostępny pod `/fizyka`.
+Statyczna strona z materiałami do nauki. Bez serwera, bez build stepu —
+hostowana bezpośrednio np. przez GitHub Pages.
 
-Aby dodać nowy temat, wystarczy dodać plik `materials/<nazwa>.html`.
+Każdy temat to folder z plikiem `index.html`, np. `fizyka/index.html`
+jest dostępny pod `/fizyka/`. Strona główna (`index.html`) zawiera listę
+linków do tematów.
 
-## Development
+## Dodawanie nowego tematu
 
-```bash
-npm install
-npm run dev
-```
+1. Stwórz folder `<nazwa>/` z plikiem `index.html`.
+2. Dodaj link do niego w `index.html` na stronie głównej.
 
-## Run
+## Hostowanie
 
-```bash
-npm start
-```
-
-## Test
-
-```bash
-npm test
-```
+Włącz GitHub Pages dla tego repozytorium (Settings → Pages → branch `main`,
+folder `/ (root)`).
