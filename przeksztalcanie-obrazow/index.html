@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Przekształcanie obrazów — fiszki do nauki</title>
+<style>
+  :root {
+    --bg: #14171c;
+    --surface: #1c2128;
+    --surface-2: #242a33;
+    --border: #2d333d;
+    --text: #e8eaed;
+    --text-dim: #8b919a;
+    --accent: #5b9dff;
+    --accent-dim: #2c4670;
+    --good: #4caf7d;
+    --font-display: "Source Serif Pro", Georgia, "Times New Roman", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 64px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    gap: 12px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+
+  .counter {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  main {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 32px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .card:hover { border-color: var(--accent-dim); }
+
+  .category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .term {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: auto;
+  }
+
+  .description {
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 4px;
+    white-space: pre-line;
+  }
+
+  .description.hidden { display: none; }
+  .hint.hidden-when-revealed { display: none; }
+
+  .controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 22px;
+    gap: 10px;
+  }
+
+  button {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  button:hover { background: var(--surface-2); border-color: var(--accent-dim); }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.35; cursor: default; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0c1116;
+    font-weight: 600;
+  }
+  button.primary:hover { background: #6fa8ff; }
+
+  .icon-btn {
+    padding: 10px 14px;
+  }
+
+  .nav-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .keyboard-hint {
+    margin-top: 18px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .done-screen {
+    width: 100%;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .done-screen h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .done-screen p {
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  kbd {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.78rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Przekształcanie obrazów</h1>
+  <div class="meta-row">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="counter" id="counter">1 / 1</div>
+  </div>
+</header>
+
+<main>
+  <div id="cardArea"></div>
+
+  <div class="controls" id="controlsArea"></div>
+
+  <p class="keyboard-hint">Spacja — pokaż / ukryj odpowiedź &nbsp;·&nbsp; <kbd>&rarr;</kbd> następna &nbsp;·&nbsp; <kbd>&larr;</kbd> poprzednia</p>
+</main>
+
+<script>
+  const FLASHCARDS_DATA = [
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Pięć podstawowych grup przekształceń obrazu",
+    "description": "Podział wg tego, od czego zależy wynik:\n• Geometryczne — zmieniają położenie piksela (obrót, skala, przesunięcie).\n• Punktowe (bezkontekstowe) — zmieniają wartość piksela bez patrzenia na otoczenie (negatyw, gamma, próg).\n• Kontekstowe (filtry) — wynik zależy od sąsiadów (rozmycie, wyostrzanie, krawędzie).\n• Widmowe — operują w dziedzinie częstotliwości (np. Fouriera).\n• Morfologiczne — operacje na kształtach obrazu binarnego (erozja, dylatacja)."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Różnica: przekształcenia punktowe vs kontekstowe",
+    "description": "Punktowe: nowa wartość piksela zależy WYŁĄCZNIE od jego własnej wartości pierwotnej.\nKontekstowe: wynik zależy od wartości piksela ORAZ od stanu jego sąsiadów (dlatego nazywa się je filtrami)."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Operacja anamorficzna",
+    "description": "Synonim operacji punktowej — każdy piksel jest przetwarzany niezależnie od sąsiadów. Dzięki tej niezależności obliczenia można wykonywać bardzo szybko i równolegle."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Cel przekształceń geometrycznych w technice wizyjnej",
+    "description": "Głównie: korekcja błędów geometrii wnoszonych przez układy optyczne (np. dystorsja obiektywu) oraz dopasowanie przestrzenne obrazów pochodzących z różnych źródeł."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Transformacje sztywne (rigid) vs elastyczne (non-rigid)",
+    "description": "Sztywne: zachowują odległości, linie proste i kąty — obiekt się nie deformuje, tylko przemieszcza/obraca.\nElastyczne: dopuszczają lokalną deformację obiektu (np. w obrazowaniu medycznym, gdzie tkanka się odkształca)."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Macierzowy model transformacji afinicznej",
+    "description": "[x'; y'] = A · [x; y] + t\n\nA (macierz 2×2, elementy A00..A11) — parametry deformacji liniowej: skala, obrót, ścinanie, odbicie.\nt (t0, t1) — wektor translacji (przesunięcie).\nCecha: zachowuje równoległość linii."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Dwa sposoby obsługi krawędzi podczas translacji",
+    "description": "• Wypełnienie zerami — puste, powstałe miejsca stają się czarne (0).\n• Zawijanie płótna — to, co wychodzi z jednej strony obrazu, wchodzi z przeciwnej."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Odbicie lustrzane: poziome vs pionowe",
+    "description": "Poziome: odwrócenie pikseli w każdym wierszu (lewo↔prawo).\nPionowe: odwrócenie kolejności całych wierszy (góra↔dół)."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Dlaczego obrót o kąt ≠ wielokrotność 90° jest operacją złożoną?",
+    "description": "Bo wymaga funkcji trygonometrycznych (sin/cos) oraz interpolacji — nowe współrzędne pikseli wypadają „pomiędzy” punktami siatki i trzeba wyznaczyć ich wartości. Dla 90/180/270° wystarczy proste przestawienie pikseli."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Rejestracja obrazów (Image Registration)",
+    "description": "Proces geometrycznego dopasowania dwóch lub więcej obrazów tej samej sceny do wspólnego układu współrzędnych (np. nałożenie zdjęć z różnych chwil albo MRI i CT tego samego pacjenta)."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Problem „pustych pikseli” przy skalowaniu",
+    "description": "Nowe współrzędne nie pokrywają się z całkowitymi współrzędnymi siatki źródłowej — piksel „chce” wartość z punktu, którego nie ma. Dlatego potrzebna jest interpolacja, żeby wyliczyć brakujące wartości."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Interpolacja najbliższego sąsiada (NN)",
+    "description": "Nowy punkt otrzymuje wartość najbliższego piksela obrazu oryginalnego (zaokrąglenie współrzędnych). Bardzo szybka, ale jej wadą jest efekt schodkowania (aliasing) na krawędziach."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Ile pikseli bierze udział w interpolacji Bicubic?",
+    "description": "16 pikseli — układ 4×4. Wartości są ważone wielomianem 3. stopnia. Pamięciówka: NN = 1, biliniowa = 4, bicubic = 16."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Która metoda interpolacji daje najwyższą jakość?",
+    "description": "Interpolacja splotu sześciennego (Bicubic) — najgładszy wynik spośród metod podstawowych, kosztem większej liczby obliczeń."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Model matematyczny przekształcenia punktowego",
+    "description": "g[x, y] = T( f[x, y] )\n\nf — piksel wejściowy, g — piksel wyjściowy, T — funkcja transformacji. Współrzędne [x,y] są te same po obu stronach, co dowodzi, że operacja punktowa nie zmienia położenia pikseli."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Czy operacja punktowa zmienia relacje przestrzenne obrazu?",
+    "description": "Nie. Zmienia się jedynie jasność lub kolor pikseli — położenie i wzajemne relacje przestrzenne pozostają nienaruszone."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Kiedy przekształcenie punktowe jest odwracalne?",
+    "description": "Gdy funkcja przejścia T jest ściśle monotoniczna (różnowartościowa) — każdej wartości wejściowej odpowiada inna wyjściowa, więc da się jednoznacznie odtworzyć oryginał. Negatyw jest odwracalny, progowanie nie."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Operacja negatywu dla obrazu 8-bitowego",
+    "description": "g = 255 − f\n\nOdwraca jasność (0 → 255, 255 → 0). Ogólnie g = (L−1) − f, gdzie L to liczba poziomów jasności."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Do czego służy korekcja Gamma?",
+    "description": "Do nieliniowej zmiany kontrastu oraz kompensacji charakterystyki urządzeń (monitory, kamery mają nieliniową odpowiedź jasności). Postać: g = c·f^γ; γ<1 rozjaśnia, γ>1 przyciemnia."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Progowanie (binaryzacja)",
+    "description": "Piksele powyżej progu otrzymują jedną wartość, a poniżej drugą — powstaje obraz binarny (dwa poziomy). Służy m.in. do oddzielenia obiektu od tła przed analizą kształtu."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Tablica LUT (LookUp Table)",
+    "description": "Tablica zawierająca wcześniej obliczone wartości funkcji przejścia dla wszystkich poziomów jasności (dla 8-bit → 256 wpisów). Pozwala zamienić liczenie funkcji na tani odczyt z tablicy."
+  },
+  {
+    "category": "Przekształcanie obrazów",
+    "term": "Algorytm operacji punktowej z użyciem LUT",
+    "description": "1. Obliczenie tablicy: LUT[i] = T(i) dla i = 0..255 (raz).\n2. Przetwarzanie obrazu: Y = LUT[X] dla każdego piksela.\n\nSens: operacja punktowa ma tylko 256 możliwych wejść, więc liczenie T dla każdego piksela z osobna to marnotrawstwo."
+  },
+  {
+    "category": "Sygnały i sieci",
+    "term": "Tor przetwornika A/C (analogowo-cyfrowego)",
+    "description": "sygnał analogowy → próbkowanie → kwantowanie → kodowanie → sygnał binarny.\n\n• Próbkowanie — dyskretyzacja czasu (Nyquist: fp ≥ 2·fmax).\n• Kwantowanie — dyskretyzacja amplitudy (powstaje błąd kwantowania).\n• Kodowanie — zapis poziomu jako słowo binarne (np. 3 bity → 8 poziomów)."
+  },
+  {
+    "category": "Sygnały i sieci",
+    "term": "Cztery postaci sygnału",
+    "description": "• Analogowy — ciągły w czasie i amplitudzie, S(t).\n• Dyskretny — próbki w czasie, amplituda ciągła, S[n].\n• Cyfrowy — próbki + skwantowana amplituda, S̃[n].\n• Binarny — ciąg zer i jedynek (zakodowany). Powrót do analogu przez przetwornik C/A."
+  },
+  {
+    "category": "Sygnały i sieci",
+    "term": "Model OSI vs TCP/IP",
+    "description": "OSI — model odniesienia, 7 warstw (fizyczna, łącza danych, sieci, transportowa, sesji, prezentacji, aplikacji); teoretyczny.\nTCP/IP — model praktyczny, na nim działa Internet, mniej warstw (zwykle 4). Zasada: każda warstwa korzysta z usług niższej i obsługuje wyższą."
+  }
+];
+
+  let order = [];
+  let pos = 0;
+  let revealed = false;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function resetDeck(doShuffle) {
+    order = doShuffle ? shuffle(FLASHCARDS_DATA.map((_, i) => i)) : FLASHCARDS_DATA.map((_, i) => i);
+    pos = 0;
+    revealed = false;
+    render();
+  }
+
+  function currentCard() {
+    return FLASHCARDS_DATA[order[pos]];
+  }
+
+  function render() {
+    const card = currentCard();
+    const cardArea = document.getElementById('cardArea');
+    const controlsArea = document.getElementById('controlsArea');
+
+    cardArea.innerHTML = `
+      <div class="card" id="cardEl">
+        ${card.category ? `<div class="category">${escapeHtml(card.category)}</div>` : ''}
+        <div class="term">${escapeHtml(card.term)}</div>
+        <div class="hint ${revealed ? 'hidden-when-revealed' : ''}">Kliknij albo wciśnij spację, żeby sprawdzić odpowiedź</div>
+        <div class="description ${revealed ? '' : 'hidden'}">${escapeHtml(card.description)}</div>
+      </div>
+    `;
+
+    document.getElementById('cardEl').addEventListener('click', toggleReveal);
+
+    controlsArea.innerHTML = `
+      <button id="shuffleBtn" class="icon-btn" title="Przetasuj fiszki">🔀 Przetasuj</button>
+      <div class="nav-group">
+        <button id="prevBtn" ${pos === 0 ? 'disabled' : ''}>← Poprzednia</button>
+        <button id="revealBtn" class="primary">${revealed ? 'Ukryj' : 'Pokaż odpowiedź'}</button>
+        <button id="nextBtn">${pos === order.length - 1 ? 'Zakończ' : 'Następna →'}</button>
+      </div>
+    `;
+
+    document.getElementById('shuffleBtn').onclick = () => resetDeck(true);
+    document.getElementById('prevBtn').onclick = goPrev;
+    document.getElementById('revealBtn').onclick = toggleReveal;
+    document.getElementById('nextBtn').onclick = goNext;
+
+    document.getElementById('counter').textContent = `${pos + 1} / ${order.length}`;
+    document.getElementById('progressFill').style.width = `${((pos + (revealed ? 1 : 0.3)) / order.length) * 100}%`;
+  }
+
+  function toggleReveal() {
+    revealed = !revealed;
+    render();
+  }
+
+  function goNext() {
+    if (pos < order.length - 1) {
+      pos++;
+      revealed = false;
+      render();
+    } else {
+      showDone();
+    }
+  }
+
+  function goPrev() {
+    if (pos > 0) {
+      pos--;
+      revealed = false;
+      render();
+    }
+  }
+
+  function showDone() {
+    document.getElementById('cardArea').innerHTML = `
+      <div class="done-screen">
+        <h2>To wszystkie fiszki w tej talii 🎉</h2>
+        <p>Możesz przejść jeszcze raz w nowej losowej kolejności.</p>
+      </div>
+    `;
+    document.getElementById('controlsArea').innerHTML = `
+      <div class="nav-group" style="margin: 0 auto;">
+        <button id="restartBtn" class="primary">Zacznij od nowa (nowa kolejność)</button>
+      </div>
+    `;
+    document.getElementById('restartBtn').onclick = () => resetDeck(true);
+    document.getElementById('progressFill').style.width = '100%';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); toggleReveal(); }
+    if (e.code === 'ArrowRight') goNext();
+    if (e.code === 'ArrowLeft') goPrev();
+  });
+
+  resetDeck(true);
+</script>
+
+</body>
+</html>
