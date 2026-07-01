@@ -209,11 +209,24 @@
     padding: 1px 6px;
     font-size: 0.78rem;
   }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-bottom: 14px;
+    transition: color 0.15s ease;
+  }
+  .back-link:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
 <header>
+  <a href="../" class="back-link">← Lista materiałów</a>
   <h1>Fizyka — egzamin ISTNS 2026L</h1>
   <div class="meta-row">
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
