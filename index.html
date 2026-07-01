@@ -4,12 +4,125 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>e-learner — materiały do nauki</title>
+  <style>
+    :root {
+      --bg: #14171c;
+      --surface: #1c2128;
+      --surface-2: #242a33;
+      --border: #2d333d;
+      --text: #e8eaed;
+      --text-dim: #8b919a;
+      --accent: #5b9dff;
+      --accent-dim: #2c4670;
+      --font-display: "Source Serif Pro", Georgia, "Times New Roman", serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px 64px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 640px;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.8rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    main {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    a.topic-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    a.topic-card:hover {
+      border-color: var(--accent-dim);
+      background: var(--surface-2);
+    }
+
+    .topic-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .topic-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .arrow {
+      color: var(--text-dim);
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
+
+<header>
   <h1>Materiały do nauki</h1>
-  <ul>
-    <li><a href="fizyka/">Fizyka</a></li>
-    <li><a href="matematyka/">Matematyka</a></li>
-  </ul>
+  <p class="subtitle">Wybierz temat, żeby rozpocząć naukę z fiszkami.</p>
+</header>
+
+<main>
+  <a href="fizyka/" class="topic-card">
+    <div>
+      <div class="topic-label">Fiszki</div>
+      <div class="topic-name">Fizyka</div>
+    </div>
+    <span class="arrow">→</span>
+  </a>
+
+  <a href="matematyka/" class="topic-card">
+    <div>
+      <div class="topic-label">Fiszki</div>
+      <div class="topic-name">Matematyka</div>
+    </div>
+    <span class="arrow">→</span>
+  </a>
+</main>
+
 </body>
 </html>
