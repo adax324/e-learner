@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bazy danych — kolokwium — fiszki do nauki</title>
+<style>
+  :root {
+    --bg: #14171c;
+    --surface: #1c2128;
+    --surface-2: #242a33;
+    --border: #2d333d;
+    --text: #e8eaed;
+    --text-dim: #8b919a;
+    --accent: #5b9dff;
+    --accent-dim: #2c4670;
+    --good: #4caf7d;
+    --font-display: "Source Serif Pro", Georgia, "Times New Roman", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 64px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    gap: 12px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+
+  .counter {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  main {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 32px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .card:hover { border-color: var(--accent-dim); }
+
+  .category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .term {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: auto;
+  }
+
+  .description {
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 4px;
+    white-space: pre-line;
+  }
+
+  .description.hidden { display: none; }
+  .hint.hidden-when-revealed { display: none; }
+
+  .controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 22px;
+    gap: 10px;
+  }
+
+  button {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  button:hover { background: var(--surface-2); border-color: var(--accent-dim); }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.35; cursor: default; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0c1116;
+    font-weight: 600;
+  }
+  button.primary:hover { background: #6fa8ff; }
+
+  .icon-btn {
+    padding: 10px 14px;
+  }
+
+  .nav-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .keyboard-hint {
+    margin-top: 18px;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .done-screen {
+    width: 100%;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .done-screen h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .done-screen p {
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
+  kbd {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.78rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-bottom: 14px;
+    transition: color 0.15s ease;
+  }
+  .back-link:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../" class="back-link">← Lista materiałów</a>
+  <h1>Bazy danych — kolokwium</h1>
+  <div class="meta-row">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="counter" id="counter">1 / 1</div>
+  </div>
+</header>
+
+<main>
+  <div id="cardArea"></div>
+
+  <div class="controls" id="controlsArea"></div>
+
+  <p class="keyboard-hint">Spacja — pokaż / ukryj odpowiedź &nbsp;·&nbsp; <kbd>&rarr;</kbd> następna &nbsp;·&nbsp; <kbd>&larr;</kbd> poprzednia</p>
+</main>
+
+<script>
+  // Claude wstrzykuje tu właściwe dane: tablicę obiektów { term, description, category? }
+  const FLASHCARDS_DATA = [
+ {
+  "term": "Właściwości baz danych (5 głównych)",
+  "description": "1) Współdzielenie danych — korzystanie z danych przez więcej niż jednego klienta, współbieżny dostęp. 2) Integracja danych — wszystkie dane logicznie w jednym miejscu, unikanie nadmiarowości, łatwiejsza administracja i łączenie zbiorów danych. 3) Integralność/spójność — zachowanie prawidłowych związków między danymi mimo ciągłej aktualizacji. 4) Bezpieczeństwo — ograniczenie dostępu osobom nieuprawnionym, scentralizowana kontrola dostępu. 5) Abstrakcja i niezależność danych — ukrycie wewnętrznej organizacji bazy przed programami użytkowymi; zmiana organizacji wewnętrznej nie wymusza zmian w aplikacjach.",
+  "category": "Podstawy"
+ },
+ {
+  "term": "Zadania DBMS",
+  "description": "1) Pielęgnacja danych — zarządzanie strukturą danych (dodawanie, modyfikacja, usuwanie) oraz zarządzanie danymi w strukturach. 2) Wyszukiwanie danych — wydobywanie istniejących danych przez użytkowników końcowych i programy użytkowe. 3) Administrowanie bazą — tworzenie i monitorowanie kont użytkowników, nadzorowanie działania bazy (kopie ratunkowe, ciągłość pracy), kontrolowanie dostępu przez definiowanie uprawnień.",
+  "category": "Podstawy"
+ },
+ {
+  "term": "DDL, DML, DCL, DIL — języki interfejsu DBMS",
+  "description": "DDL (Data Definition Language) — tworzenie, modyfikacja i usuwanie struktur danych. DML (Data Manipulation Language) — tworzenie, modyfikacja, czytanie i usuwanie danych znajdujących się w strukturach. DCL (Data Control Language) — definiowanie użytkowników, uprawnień i grup, używany przez administratora. DIL (Data Integrity Language) — definiowanie więzów integralności bazy danych. Interfejs to warstwa pośrednia umożliwiająca programom klienckim korzystanie z bazy; SQL realizuje wszystkie 4 funkcjonalności.",
+  "category": "Podstawy"
+ },
+ {
+  "term": "Architektura klient-serwer vs 3-warstwowa",
+  "description": "Klient-serwer: aplikacje klienckie komunikują się bezpośrednio z serwerem bazodanowym (DBMS). Architektura 3-warstwowa: między klientem a serwerem bazodanowym znajduje się warstwa pośrednia — serwer aplikacji (np. CMS jak Joomla czy WordPress), który obsługuje logikę i komunikuje się z DBMS. Klient (przeglądarka) nie łączy się bezpośrednio z bazą.",
+  "category": "Podstawy"
+ },
+ {
+  "term": "Skalowalność pionowa vs pozioma",
+  "description": "Pionowa (vertical) — dokładanie zasobów do istniejącego serwera (np. pamięci, CPU). Zalety: mniejsze zużycie energii, łatwiejsze utrzymanie spójności danych, mniej miejsca w serwerowni. Wady: pojedyncza awaria unieruchamia całą bazę, wysokie koszty mocnych serwerów. Pozioma (horizontal) — dokładanie kolejnych serwerów (węzłów) do systemu; typowa dla systemów rozproszonych i NoSQL.",
+  "category": "Podstawy"
+ },
+ {
+  "term": "Hierarchiczny i sieciowy model danych",
+  "description": "Modele historyczne. Hierarchiczny — dane w strukturze drzewa (przykłady: IBM IMS, systemy plików, rejestr Windows, XML). Sieciowy — rozszerzenie o powiązania między gałęziami. Zalety obu: prostota związków 1:N. Wady: sztywna struktura 1:N (brak N:M), nadmiarowość gdy jeden korzeń ma wiele gałęzi, trudniejszy dostęp do danych (przeszukiwanie drzewa), słaba przydatność do danych wieloskalowych.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Obiektowe bazy danych — zalety i wady",
+  "description": "Przykład: db4o. Zalety: szeroki zakres obsługiwanych typów danych i łatwość definiowania nowych, integracja z językami obiektowymi, łatwy zapis i odczyt obiektów. Wady: brak standardów, duży poziom skomplikowania (potencjalnie niższa wydajność), brak mechanizmów bezpieczeństwa (praw dostępu do obiektu), mniejsza popularność niż bazy relacyjne.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "NoSQL — cztery główne modele danych",
+  "description": "1) Klucz-wartość (key-value): Redis, Memcached, DynamoDB — dane jako pary klucz→wartość/struktury danych. 2) Kolumnowe (column-oriented): Cassandra, Hadoop/HBase, Vertica — dane zapisywane kolumnami zamiast wierszami. 3) Dokumentowe: MongoDB, CouchDB — dokumenty (np. JSON) bez sztywnego schematu. 4) Grafowe (graph stores): Neo4j — węzły i relacje, zapytania w Cypher Query Language. NoSQL = Not Only SQL.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Bazy kolumnowe — dlaczego szybszy odczyt, trudniejszy zapis?",
+  "description": "Zapis kolumnowy jest zoptymalizowany pod operacje odczytu: czytane są tylko wartości z interesujących nas kolumn, co oznacza mniej operacji we/wy na pamięci masowej niż przy zapisie wierszowym — szybsza np. agregacja danych. Operacje zapisu są trudniejsze, ponieważ zapis pojedynczej krotki wymaga zapisu w kilku fizycznych miejscach (osobno w każdej kolumnie). Przykłady: Cassandra (język CQL, bardzo podobny do SQL), HBase, Vertica.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Dokumentowe bazy danych — zalety i wady",
+  "description": "Przykłady: MongoDB, CouchDB. Dane przechowywane jako dokumenty (np. JSON) z zagnieżdżonymi strukturami. Zalety: brak sztywnego schematu, łatwiejszy rozwój i migracja aplikacji. Wady: większa zajętość przestrzeni dyskowej (dane tekstowe + redundancja danych). MongoDB Query Language nie jest klasycznym językiem zapytań, tylko API sterowanym przez JavaScript, np. db.users.find({...}).count(), agregacje z $lookup.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Teoria CAP (na kolokwium!)",
+  "description": "Dotyczy rozproszonych baz danych. Consistency (spójność) — wszystkie węzły widzą te same dane w tym samym czasie (wymaga replikacji zmian do pozostałych węzłów). Availability (dostępność) — gwarancja, że każde zapytanie otrzyma odpowiedź, nawet kosztem chwilowej spójności. Partition tolerance (tolerancja na podział) — system działa prawidłowo mimo awarii jego fragmentu. Rozproszony system bazodanowy może jednocześnie spełniać tylko 2 z 3 tych cech! Przykłady: CP — MongoDB, HBase, Redis, BigTable; CA — klasyczne RDBMS (Oracle, SQL Server, MySQL); AP — Cassandra, Riak, CouchDB.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Podsumowanie systemów NoSQL (ograniczenia)",
+  "description": "Struktura danych nie jest sformalizowana — pilnowanie poprawności struktur spoczywa na programiście. Poszczególne obiekty w bazie mogą się różnić atrybutami. Trudno zapewnić transakcyjność operacji. Uboższy interfejs zapytań i brak unifikacji interfejsu (każdy system ma własny język/API). Część systemów oferuje tylko Eventual Consistency — dopuszczalne jest zwrócenie nie najnowszej informacji.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "OLTP vs OLAP",
+  "description": "OLTP (On-Line Transaction Processing) — przetwarzanie transakcyjne, jak najszybsze przesyłanie danych: baza wysoko znormalizowana z wieloma tabelami, dane bieżące i detaliczne, powtarzające się proste zapytania, odczyt i zapis, krótkie transakcje, dziesiątki czytanych rekordów, rozmiar 100MB–GB, miara wydajności: transakcje/sek. OLAP (On-Line Analytical Processing) — przetwarzanie analityczne, hurtownie danych, wspieranie decyzji: baza zdenormalizowana z mniejszą liczbą tabel, dane historyczne i zagregowane (wielowymiarowe), zapytania ad-hoc, głównie odczyty, złożone zapytania z agregacjami, miliony rekordów, rozmiar 100GB–TB, miara: prędkość przetwarzania danych. Trzecia kategoria wg celu: GIS — systemy informacji geograficznej (np. PostGIS).",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Języki 3GL vs 4GL",
+  "description": "3GL (3. generacja): komunikacja z bazą wymaga specjalizowanych bibliotek (np. JDBC w Javie); przykłady: C, C++, C#, Java, JavaScript, PHP, Perl, Visual Basic. 4GL (4. generacja): bezpośrednie zawieranie zapytań SQL i obsługa ich wyników w kodzie aplikacji, krótszy kod niż w 3GL; przykłady: Oracle Forms, Progress-4GL. Istnieją też biblioteki 4GL do języków 3GL, np. .NET LINQ — pozwala pisać zapytania (from c in Customers where... select...) bezpośrednio w C#/VB nad obiektami, relacyjnymi bazami i XML.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Przegląd SZBD — komercyjne i niekomercyjne",
+  "description": "Komercyjne: Oracle, IBM (DB2, Informix), Microsoft SQL Server, Sybase Adaptive Server Enterprise. Niekomercyjne: Firebird, MySQL, PostgreSQL.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Etapy projektowania bazodanowego systemu informatycznego",
+  "description": "1) Modelowanie pojęciowe (np. diagram E-R) — niezależne od SZBD. 2) Modelowanie logiczne (np. model relacyjny) — zależne od SZBD. 3) Projekt fizyczny — konkretna implementacja w wybranym systemie. Przejście z modelu pojęciowego do logicznego to transformacja ER → schemat relacyjny.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Notacje diagramów E-R (na kolokwium: rysowanie i konwersja!)",
+  "description": "Główne notacje: Chena (prostokąt = encja, owal = atrybut, romb = związek), Barkera (Oracle — atrybuty w prostokącie encji, # oznacza atrybut kluczowy, * atrybut obowiązkowy, o opcjonalny), IDEF1X oraz diagramy UML (Unified Modeling Language). Na kolokwium wymagane jest narysowanie notacji diagramów oraz konwersja związków z jednego typu diagramu na drugi. Uwaga z wykładu: uczyć się z materiałów wykładowych, bo w internecie notacje mogą się nieco różnić.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Encja, zbiór encji, atrybut",
+  "description": "Encja = „rzecz\", obiekt świata rzeczywistego (podobieństwo do klasy w językach obiektowych). Zbiór encji = kolekcja podobnych encji. Atrybut = właściwość encji. Cechy encji: każda encja MUSI posiadać atrybuty, każda posiada unikalną nazwę (identyfikator), dowolny obiekt świata rzeczywistego jest reprezentowany wyłącznie przez jedną encję, encje są ze sobą powiązane.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Typy atrybutów i atrybuty kluczowe",
+  "description": "Typy atrybutów: proste lub złożone, kluczowe, jedno- lub wielowartościowe. Atrybuty kluczowe: każda encja musi posiadać atrybut lub zbiór atrybutów będących jej unikalnym identyfikatorem; przyjmują unikalne wartości w ramach wszystkich wystąpień encji. Wszystkie niekluczowe atrybuty encji to deskryptory. Definicja atrybutu obejmuje: nazwę, określenie dziedziny (typ i zbiór dozwolonych wartości), dopuszczenie wartości pustych, opcjonalną unikatowość.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Cechy związku: stopień, typ asocjacji, istnienie",
+  "description": "Stopień związku (liczba uczestniczących encji): unarny (binarny rekursywny — encja związana sama ze sobą, trzeba określić role), binarny (dwie encje), ternarny (trzy encje), n-arny. Typ asocjacji: jeden-do-jeden (1:1), jeden-do-wiele (1:N), wiele-do-wiele (M:N). Istnienie (udział w związku): opcjonalny — może istnieć encja bez tego związku; obowiązkowy — każda instancja encji musi brać udział w związku.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Typy asocjacji 1:1, 1:N, N:M — definicje",
+  "description": "1:1 — każda instancja encji bierze udział w co najwyżej jednej instancji związku (np. pracownik kieruje jednym działem, dział ma jednego kierownika). 1:N — instancja jednej encji bierze udział w co najwyżej jednej instancji związku, instancja drugiej w dowolnej liczbie (np. pracownik pracuje w jednym dziale, dział ma wielu pracowników). N:M — instancje obu encji biorą udział w dowolnej liczbie instancji związku (np. pracownicy realizują wiele projektów, projekt realizowany przez wielu pracowników).",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Oznaczenia liczności w UML: 0..1, 0..*, 1..1, 1..*",
+  "description": "0..1 — udział w związku opcjonalny, maksymalnie jeden egzemplarz wiązanej encji. 0..* — udział opcjonalny, do wielu egzemplarzy. 1..1 — udział obowiązkowy, dokładnie jeden egzemplarz. 1..* — udział obowiązkowy, do wielu egzemplarzy. Przykład: „A member of staff can manage zero or one branch\" = 0..1 po stronie Branch.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Atrybuty związków",
+  "description": "Czasami wygodniej jest łączyć atrybuty ze związkiem między zbiorami encji, a nie z samą encją — np. dla pracowników biorących udział w projekcie zapamiętujemy stanowisko i wynagrodzenie na związku „realizuje\". Równoważny diagram bez atrybutów związku: tworzy się zbiór encji reprezentujący te atrybuty i włącza go do związku. Uwaga: notacja Barkera nie dopuszcza wiązania atrybutów ze związkami — trzeba utworzyć encję pośrednią (np. Realizacja), która musi dotyczyć jakiegoś projektu i pracownika (nie może istnieć bez nich).",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Słabe zbiory encji",
+  "description": "Zbiór encji E jest słaby, jeśli do unikalnej identyfikacji jego encji trzeba prześledzić jeden lub kilka związków jeden-do-wielu i dołączyć klucz z innego, powiązanego zbioru encji. Przykład: piłkarza nie identyfikuje jednoznacznie ani imię, ani numer (numery powtarzają się między drużynami) — dopiero numer razem z nazwą drużyny (przez związek gra-w) jest kluczem. W notacji Chena: słaby zbiór encji = podwójny prostokąt, związek wspierający (identyfikujący) = podwójny romb. W notacji Barkera związek wchodzący w skład identyfikatora oznacza się krótką prostopadłą linią.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Pułapka wiatraka (fan trap)",
+  "description": "Problem modelowania E-R: gdy jedna encja centralna łączy się dwoma związkami 1:N „rozchodzącymi się\" jak wachlarz (np. Dział operuje wieloma filiami i zatrudnia wielu pracowników), nie da się ustalić powiązania między encjami skrajnymi (np. w której filii pracuje pracownik SG37). Rozwiązanie: przeorganizowanie związków tak, aby ścieżka powiązań przechodziła przez właściwą encję (np. pracownik przypisany do filii, filia do działu).",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Podklasy, specjalizacja i generalizacja",
+  "description": "Podklasa = wyjątkowy zbiór encji posiadający dodatkowe, specjalizowane atrybuty (np. piwa jasne to grupa piw z dodatkowym atrybutem kolor). Specjalizacja — definiowanie zbioru encji podklasy na podstawie encji nadklasy (od ogółu do szczegółu). Generalizacja — definiowanie ogólnej encji nadklasy na podstawie istniejących zbiorów encji, które stają się podklasami (od szczegółu do ogółu). Cechy: specjalizacja może być rozłączna lub nakładająca się (And/Or), pełna lub częściowa (Mandatory/Optional).",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Agregacja vs kompozycja (UML)",
+  "description": "Agregacja — reprezentuje związek „posiada\" lub „jest częścią\" pomiędzy „dużą\" encją, w skład której wchodzą „mniejsze\" encje-elementy; elementy mogą istnieć niezależnie od całości. Kompozycja — specjalny przypadek agregacji, w którym składowe posiadane przez „całość\" nie mogą bez niej istnieć.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Technika projektowania E-R — 3 zasady",
+  "description": "1) Unikanie nadmiarowości — ta sama rzecz nie może być opisywana na różne sposoby; redundancja marnuje przestrzeń i grozi niespójnością (dwa wystąpienia tego samego faktu mogą być różnie zaktualizowane). 2) Unikanie używania słabych zbiorów encji. 3) Unikanie niepotrzebnego tworzenia zbiorów encji zamiast dodawania atrybutów.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Kiedy zbiór encji, a kiedy atrybut?",
+  "description": "Zbiór encji powinien spełniać przynajmniej jeden z warunków: 1) zawiera co najmniej jeden atrybut nie należący do klucza, albo 2) jest stroną „wiele\" w związku wiele-do-wielu lub jeden-do-wielu. Przykład dobrze: Producenci są zbiorem encji, bo mają niekluczowy atrybut adres; Towary są zbiorem encji, bo są stroną „wiele\" w związku produkowane_przez. Przykład źle: jeśli o producencie pamiętamy tylko nazwę, powinien być atrybutem towaru, a nie osobnym zbiorem encji.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Narzędzia CASE",
+  "description": "CASE (Computer-Aided Software Engineering) — narzędzia pozwalające tworzyć diagramy związków encji, które są następnie automatycznie przekształcane w model relacyjny. Umożliwiają synchronizację bazy danych z modelem E-R. Przykłady: Oracle Designer, DBDesigner 4, MySQL Workbench, TOAD Data Modeler, Visual Paradigm, MS Visio.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Model danych — 3 podstawowe elementy",
+  "description": "Każdy model danych definiuje: 1) Struktury danych — w jaki sposób obiekty świata rzeczywistego są reprezentowane w bazie. 2) Operacje (operatory modelu danych). 3) Ograniczenia integralnościowe. W modelu relacyjnym odpowiednio: struktury = relacje (tabele); operacje = selekcja, projekcja, połączenie, operacje na zbiorach; ograniczenia = klucz podstawowy, klucz obcy, zawężenie dziedziny, unikalność, wartość pusta/niepusta.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Relacja, schemat relacji, krotka, domena",
+  "description": "Relacja = pojęcie określające tabelę; baza danych jest zbiorem relacji. Schemat relacji R(A1,A2,...,An) składa się z nazwy relacji R oraz listy atrybutów. Każdy atrybut posiada domenę dom(Ai) — zbiór wartości atrybutu definiowany przez typ danych. Relacja r o schemacie R to zbiór krotek; pojedyncza krotka t (wiersz tabeli) jest uporządkowaną listą n wartości t=<v1,...,vn>, gdzie vi należy do dom(Ai) lub jest wartością pustą (NULL). Przykład zapisu schematu (poprawna odpowiedź na kolokwium): Samochody(nazwa:string, producent:string).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Stopień i liczebność relacji",
+  "description": "Stopień relacji — liczba atrybutów składających się na schemat relacji (liczba kolumn w tabeli). Liczebność relacji — liczba krotek (wierszy) w tabeli.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Właściwości relacji (7 cech)",
+  "description": "1) Nie istnieją powtarzające się krotki. 2) Krotki nie są uporządkowane — kolejność wierszy nie ma znaczenia. 3) Porządek atrybutów w relacji nie jest istotny. 4) Wszystkie wartości atrybutów są atomowe. 5) W ramach bazy danych dziedziny mają jednoznaczne nazwy. 6) W ramach bazy relacje mają jednoznaczne nazwy. 7) W ramach relacji atrybuty mają jednoznaczne nazwy.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Superklucz vs klucz relacji",
+  "description": "Superklucz — każdy podzbiór S atrybutów relacji R taki, że dla każdych dwóch krotek zachodzi t1[S]<>t2[S] (żadne dwie krotki nie mają identycznych wartości na S). Cały schemat relacji jest superkluczem; superklucz może zawierać nadmiarowe atrybuty. Klucz K — taki superklucz, dla którego usunięcie dowolnego atrybutu powoduje, że przestaje być superkluczem (minimalny superklucz). Schemat relacji może posiadać więcej niż jeden klucz — wyróżniony to klucz podstawowy, pozostałe to klucze kandydujące (wtórne).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Klucz podstawowy (primary key)",
+  "description": "Atrybut lub zbiór atrybutów, których wartość jednoznacznie identyfikuje krotkę. Wartość jest unikalna w obrębie całej relacji i niepusta (nie może być NULL). Przykłady naturalne: PESEL, VIN. Klucz wyróżniony spośród kluczy kandydujących.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Klucz obcy (foreign key)",
+  "description": "Atrybut lub zbiór atrybutów, który wskazuje na klucz podstawowy — najczęściej w innej relacji. Służy do reprezentowania powiązań pomiędzy danymi (łączenia relacji). Przykład: atrybut IdZesp w relacji Pracownicy wskazuje na klucz podstawowy relacji Zespoły.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Rodzaje ograniczeń integralnościowych",
+  "description": "Reguły gwarantujące, że dane zawarte w relacji spełniają nałożone warunki. Definiowane na poziomie atrybutu lub całej relacji. Rodzaje: klucz podstawowy (primary key), klucz obcy (foreign key), unikalność (unique), zawężenie dziedziny (check — ograniczenie dozwolonych wartości do przedziału lub listy, np. oceny 1..6, pora_roku: wiosna/lato/jesień/zima), dopuszczenie/niedopuszczenie wartości pustej (null/not null).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Operacja selekcji (σ) — algebra relacji",
+  "description": "Wyodrębnia podzbiór krotek relacji spełniających warunek selekcji — inaczej podzbiór poziomy (wiersze). Notacja: σ<warunek>(<relacja>). Warunek to zbiór predykatów postaci <atrybut><operator><literał> lub <atrybut><operator><atrybut>, łączonych operatorami AND, OR. Selekcja jest komutatywna: σw1(σw2(R)) = σw2(σw1(R)). Przykład: σ etat='dyrektor'(Pracownicy). Odpowiednik SQL: klauzula WHERE. Z tego może być pytanie na kolokwium.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Operacja projekcji (π) — algebra relacji",
+  "description": "Wyodrębnia wybrane atrybuty relacji — inaczej podzbiór pionowy (kolumny). Notacja: π<atrybuty>(<relacja>), gdzie atrybuty to podzbiór atrybutów schematu. Projekcja NIE jest komutatywna (w przeciwieństwie do selekcji). Odpowiednik SQL: lista kolumn po SELECT. Operacje można składać: wynik jednej operacji jest zbiorem wejściowym drugiej, np. π IdPrac,Nazwisko(σ IdZesp=10(Pracownicy)).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Kompatybilność relacji i operacje na zbiorach",
+  "description": "Suma, iloczyn (przekrój) i różnica są wykonywalne dla dwóch relacji, gdy zachodzi kompatybilność: relacje R(A1,...,An) i S(B1,...,Bn) mają ten sam stopień i dom(Ai)=dom(Bi) dla każdego i. Suma R∪S — krotki z R i wszystkie krotki S bez duplikatów; komutatywna. Iloczyn R∩S — krotki występujące zarówno w R jak i w S; komutatywny. Różnica R−S — krotki występujące w R i nie występujące w S; NIE jest komutatywna (R−S ≠ S−R). Odpowiedniki SQL: UNION, INTERSECT.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Iloczyn kartezjański (R × S)",
+  "description": "Dla relacji R(A1,...,An) o N krotkach i S(B1,...,Bm) o M krotkach wynikiem jest relacja Q stopnia n+m o schemacie Q(A1,...,An,B1,...,Bm), której krotki to wszystkie kombinacje krotek z R i S — czyli N*M krotek. W SQL: SELECT * FROM tA, tB (wymienienie tabel po przecinku bez warunku łączenia).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Operacja połączenia (join) — algebra relacji",
+  "description": "Służy do łączenia wybranych krotek z dwóch relacji w pojedynczą krotkę na podstawie warunku połączeniowego. Warunek to zbiór predykatów postaci Ai θ Bj (Ai — atrybut R, Bj — atrybut S, dom(Ai)=dom(Bj)), łączonych operatorem AND; θ to operator relacyjny ze zbioru {=, <>, <, <=, >, >=}. Równozłączenie (equi-join) — warunkiem jest operator =. Połączenie można wyrazić jako selekcję na iloczynie kartezjańskim: σ PID_ZESP=ZID_ZESP(Pracownicy × Zespoły).",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Połączenia zewnętrzne — left, right, full (na kolokwium: inner vs outer!)",
+  "description": "Tradycyjne (wewnętrzne) połączenie zwraca tylko krotki spełniające kryteria — bez wartości NULL po stronie niedopasowanej. Połączenie zewnętrzne pozostawia w wyniku także krotki bez odpowiednika w łączonej tabeli: Lewostronne (LEFT OUTER JOIN) — wszystkie krotki z relacji lewej, połączone z odpowiednikami lub z pustą krotką (NULL). Prawostronne (RIGHT OUTER JOIN) — wszystkie krotki z relacji prawej. Obustronne (FULL OUTER JOIN) — wszystkie krotki z obu relacji, z dopasowaniami lub NULL. Na kolokwium na pewno będzie pytanie z OUTER i INNER.",
+  "category": "Model relacyjny"
+ },
+ {
+  "term": "Transformacja encji do relacji",
+  "description": "Encja → relacja; atrybut encji → atrybut relacji; typ danych atrybutu encji → typ danych atrybutu relacji; identyfikator encji → klucz podstawowy relacji; obowiązkowość atrybutów → ograniczenie NOT NULL; ograniczenia integralnościowe atrybutów encji → ograniczenia integralnościowe atrybutów relacji. Na kolokwium może być zadanie: dostajemy operacje w modelu relacyjnym + dane źródłowe i podajemy wynik, przekształcamy zapis relacyjny na SQL lub odwrotnie.",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja encji słabych",
+  "description": "Dla każdej encji słabej S związanej z encją nadrzędną N (reprezentowaną przez relację R(N)): utwórz relację R(S) zawierającą wszystkie proste atrybuty S, dodaj atrybuty klucza podstawowego R(N) jako klucz obcy w R(S) wskazujący na R(N). Kluczem podstawowym relacji R(S) jest kombinacja atrybutów identyfikatora encji S i klucza relacji R(N).",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja związków binarnych 1:1 (3 warianty)",
+  "description": "Zawsze: utwórz relacje odpowiadające łączonym encjom i połącz je kluczem obcym. Różnica dotyczy umiejscowienia klucza obcego: 1) Obustronnie wymagany — klucz obcy w dowolnej z relacji. 2) Obustronnie opcjonalny — klucz obcy w relacji o przewidywanej mniejszej liczbie krotek. 3) Jednostronnie wymagany — klucz obcy w relacji reprezentującej encję, której uczestnictwo w związku jest obowiązkowe (totalne).",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja związków binarnych 1:N",
+  "description": "Utwórz relacje R(E) i R(F) dla łączonych encji; umieść w relacji R(F) (po stronie „wiele\") klucz obcy wskazujący na R(E). Atrybuty związku umieść jako proste atrybuty relacji R(F). Warianty: obustronnie wymagany — klucz obcy wymagany; jednostronnie wymagany po stronie N — klucz obcy wymagany; jednostronnie wymagany po stronie 1 — klucz obcy opcjonalny; obustronnie opcjonalny — klucz obcy opcjonalny.",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja związków binarnych N:M",
+  "description": "Utwórz relacje R(E) i R(F) odpowiadające łączonym encjom. Utwórz NOWĄ relację Z reprezentującą związek. Dodaj do Z dwa klucze obce wskazujące na R(E) i R(F). Kluczem podstawowym relacji Z jest kombinacja obu kluczy obcych. Atrybuty związku dodaj do Z. Przykład: Obywatele — jest_członkiem (ze składką) — Organizacje: powstaje tabela pośrednia z PESEL, nrOrganizacji i składką.",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja związków unarnych (1:1, 1:N, N:M)",
+  "description": "Unarny 1:1 — do relacji R(E) dodaj nowy klucz obcy wskazujący na klucz podstawowy tej samej relacji R(E); klucz obcy opcjonalny gdy związek opcjonalny, obowiązkowy gdy obowiązkowy. Unarny 1:N — jak wyżej, ale klucz obcy jest zawsze opcjonalny, ponieważ związek unarny 1:N musi być opcjonalny (np. PESELlidera w tabeli Pracownicy). Unarny N:M — utwórz nową relację Z z dwukrotnie dodanym wymaganym kluczem obcym wskazującym na R(E); klucz podstawowy Z to kombinacja obu kluczy obcych (np. tabela współpracy par pracowników).",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja atrybutów wielowartościowych",
+  "description": "Atrybut wielowartościowy (oznaczany podwójną ramką w notacji Chena). Dla każdego takiego atrybutu w encji E: utwórz relację R(E), następnie utwórz nową relację W i dodaj do niej wymagany klucz obcy wskazujący na R(E) oraz wszystkie proste składowe atrybutu wielowartościowego. Kluczem podstawowym W jest kombinacja wartości atrybutu i klucza obcego. Przykład: języki obce pracownika → tabela JęzykiObce(nazwa, PESEL).",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Transformacja hierarchii encji — 3 schematy",
+  "description": "Schemat 1: jedna relacja R(E) ze wszystkimi atrybutami nadklasy i podklas + dodatkowy atrybut TYP; wszystkie związki w R(E). Stosować gdy: encje podklas są bardzo podobne, większość związków do nadklasy. Schemat 2: osobne relacje R(E'), R(E'') tylko dla podklas; atrybuty nadklasy zduplikowane w obu (wraz ze związkami). Stosować gdy: encje podklas bardzo różne, większość związków do podklas. Schemat 3: relacje R(E), R(E'), R(E'') dla nadklasy i każdej podklasy, połączone kluczami obcymi z R(E). Stosować gdy: podklasy dość zróżnicowane, część związków do nadklasy, część do podklas.",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "SQL — podstawowe wyrażenie SELECT-FROM-WHERE",
+  "description": "SELECT wybrane atrybuty FROM jednej lub kilku tabel WHERE warunek dotyczący krotek. SQL nie jest case sensitive (poza stałymi napisowymi). Stałe napisowe umieszcza się w pojedynczych apostrofach: WHERE producent = 'ABC'. Kolejność wykonania dla jednej relacji: 1) wybierz relację z FROM, 2) zastosuj selekcję z WHERE, 3) zastosuj projekcję z SELECT. Gwiazdka * w SELECT oznacza wszystkie atrybuty relacji z FROM.",
+  "category": "SQL"
+ },
+ {
+  "term": "SQL — aliasy: AS dla kolumn, aliasy tabel",
+  "description": "Zmiana nazwy atrybutu w relacji wynikowej: SELECT nazwa AS pieczywo... — słowo AS stosuje się do kolumn. Aliasy do nazw TABEL podaje się bez AS: FROM Towary t1, Towary t2. Aliasy tabel są konieczne, gdy w zapytaniu używa się dwóch kopii tej samej relacji, np. znajdowanie par towarów tego samego producenta: SELECT t1.nazwa, t2.nazwa FROM Towary t1, Towary t2 WHERE t1.producent = t2.producent AND t1.nazwa < t2.nazwa (warunek < eliminuje pary typu (chleb, chleb) i porządkuje alfabetycznie).",
+  "category": "SQL"
+ },
+ {
+  "term": "SQL — wyrażenia w klauzuli SELECT",
+  "description": "W klauzuli SELECT może pojawić się dowolne wyrażenie, np. przeliczenie ceny: SELECT sklep, towar, cena / 4.7 AS cena_w_EUR FROM Sprzedaje. Można też używać wyrażeń stałych: SELECT nazwisko, 'lubi chleb' AS ktoLubiChleb FROM Lubi WHERE towar = 'chleb' — każdy wynikowy wiersz zawiera stały napis.",
+  "category": "SQL"
+ },
+ {
+  "term": "CREATE TABLE i DROP TABLE",
+  "description": "Najprostsza forma: CREATE TABLE <nazwa> (<lista elementów>); gdzie element to para nazwa atrybutu + typ. Przykład: CREATE TABLE Sprzedaje (sklep CHAR(20), towar VARCHAR(20), cena FLOAT); Usuwanie relacji: DROP TABLE <nazwa>; W pełnej składni kolumna może też być COMPUTED BY (wyrażenie), mieć DEFAULT (stała|NULL) oraz NOT NULL.",
+  "category": "SQL"
+ },
+ {
+  "term": "PRIMARY KEY vs UNIQUE — różnice wymagane przez standard SQL",
+  "description": "Obie właściwości oznaczają klucze pierwotne relacji. Różnice wymagane przez standard: 1) W definicji relacji może istnieć tylko JEDEN PRIMARY KEY, natomiast właściwość UNIQUE może mieć kilka atrybutów/definicji. 2) Żaden z atrybutów z PRIMARY KEY nie może przyjmować wartości NULL; dla UNIQUE NULL jest dopuszczalny. Dodatkowo standard pozwala implementatorom na własne różnice — np. niektóre DBMS automatycznie tworzą indeks dla PRIMARY KEY, ale nie dla UNIQUE. Klucz wieloatrybutowy deklaruje się jako osobny element: CREATE TABLE Sprzedaje (sklep CHAR(20), towar VARCHAR(20), cena FLOAT, PRIMARY KEY (sklep, towar));",
+  "category": "SQL"
+ },
+ {
+  "term": "NOT NULL i DEFAULT — właściwości atrybutów",
+  "description": "NOT NULL — atrybut nie może przyjąć wartości NULL. DEFAULT <wartość> — nadaje domyślną wartość atrybutowi, gdy nie podano jej przy INSERT. Przykład: adres CHAR(50) DEFAULT 'nieznany'. Po INSERT INTO Klienci(imie) VALUES('Franek') powstaje krotka (Franek, 'nieznany', NULL). Gdyby telefon miał NOT NULL, operacja dodawania zostałaby odrzucona.",
+  "category": "SQL"
+ },
+ {
+  "term": "ALTER TABLE — dodawanie i usuwanie atrybutów",
+  "description": "Dodawanie kolumn: ALTER TABLE <nazwa> ADD <deklaracja atrybutu>; np. ALTER TABLE Sklepy ADD telefon CHAR(16) DEFAULT 'nieznany'. Usuwanie: ALTER TABLE <nazwa> DROP <atrybut>; Pełna składnia obejmuje też ADD <restrykcja> i DROP CONSTRAINT. Przykład złożony: ALTER TABLE DZIENNIK ADD OCENA NUMERIC(2,1) DEFAULT 2 NOT NULL CHECK(OCENA BETWEEN 1 AND 6); Można też dodawać klucze: ALTER TABLE KSIAZKI ADD CONSTRAINT K1 PRIMARY KEY (ID);",
+  "category": "SQL"
+ },
+ {
+  "term": "CAST i CONVERT — konwersje typów",
+  "description": "Konwersje typów danych bywają ukryte (niejawne, wykonywane automatycznie) i jawne (jawnie żądamy zamiany typu). Konwersji jawnej dokonuje się operatorem CAST (kompatybilny ze standardem ANSI): CAST(source-value AS destination-type), np. CAST(count AS float). W MS SQL alternatywnie CONVERT(data_type[(length)], expression, [style]), np. CONVERT(nvarchar(10), OrderDate, 101). Uwaga na typy zmiennoprzecinkowe: nie zawsze przechowują dokładnie przypisaną wartość (1.5 może faktycznie być 1.4999999976).",
+  "category": "SQL"
+ },
+ {
+  "term": "Operator IN",
+  "description": "Warunek <krotka> IN <relacja> ma wartość PRAWDA tylko jeśli krotka należy do relacji; istnieje też NOT IN. Stosowany w klauzuli WHERE; <relacja> jest często podzapytaniem. Liczba kolumn musi się zgadzać z podzapytaniem. Przykład: SELECT * FROM Towary WHERE nazwa IN (SELECT towar FROM Lubi WHERE nazwisko = 'Kowalski');",
+  "category": "SQL"
+ },
+ {
+  "term": "Operator EXISTS i zapytania skorelowane",
+  "description": "EXISTS(<relacja>) zwraca PRAWDA, jeśli relacja (wynik podzapytania) nie jest pusta. Przykład — towary będące jedynymi towarami swojego producenta: SELECT nazwa FROM Towary t1 WHERE NOT EXISTS (SELECT * FROM Towary WHERE producent = t1.producent AND nazwa <> t1.nazwa); Zapytanie jest SKORELOWANE, gdy podzapytanie nie może zadziałać samodzielnie bez zapytania głównego — tutaj potrzebuje aliasu t1 zdefiniowanego na zewnątrz.",
+  "category": "SQL"
+ },
+ {
+  "term": "Operatory ANY i ALL",
+  "description": "x = ANY(<relacja>) zwraca PRAWDĘ, jeśli x jest równe przynajmniej jednej krotce z relacji; = można zastąpić dowolnym operatorem porównania. Krotki muszą mieć jeden atrybut. x <> ALL(<relacja>) jest PRAWDĄ, jeśli dla każdej krotki k relacji x jest różne od k (x nie należy do relacji). Zastosowanie — towar o najwyższej cenie: SELECT towar FROM Sprzedaje WHERE cena >= ALL(SELECT cena FROM Sprzedaje); (cena z zewnętrznego zapytania nie mniejsza niż dowolna cena).",
+  "category": "SQL"
+ },
+ {
+  "term": "LIKE i szablony (%, _)",
+  "description": "W WHERE można porównywać atrybut tekstowy z szablonem: <atrybut> LIKE <szablon> lub NOT LIKE. Szablon jest stałą tekstową ze znakami specjalnymi: % oznacza dowolny napis (dowolnej długości), _ (podkreślenie) oznacza dokładnie jedną dowolną literę. Przykład — klienci z numerem kierunkowym 52: SELECT nazwisko FROM Klienci WHERE telefon LIKE '%52-%';",
+  "category": "SQL"
+ },
+ {
+  "term": "Wartości NULL i logika 3-wartościowa (ważne! pułapka IS NULL na kolokwium)",
+  "description": "Logika w SQL jest 3-wartościowa: TRUE, FALSE, UNKNOWN. Porównanie JAKIEJKOLWIEK wartości z NULL daje UNKNOWN — dlatego sprawdza się NULL wyłącznie operatorami IS NULL / IS NOT NULL, nigdy = NULL (pułapka na kolokwium!). Zapytanie zwraca krotkę tylko jeśli WHERE daje TRUE (nie UNKNOWN). Model obliczeniowy: TRUE=1, FALSE=0, UNKNOWN=1/2; AND=MIN, OR=MAX, NOT(x)=1−x. Konsekwencja-pułapka: dla krotki (SklepA, chleb, NULL) zapytanie WHERE cena < 2.00 OR cena >= 2.00 NIE zwróci tej krotki, bo UNKNOWN OR UNKNOWN = UNKNOWN.",
+  "category": "SQL"
+ },
+ {
+  "term": "Zapytania z wielu relacji",
+  "description": "Kilka relacji wymienia się w klauzuli FROM po przecinku. Atrybuty o takich samych nazwach rozróżnia się przez <relacja>.<atrybut>. Przykład: SELECT towar FROM Lubi, Odwiedza WHERE Lubi.nazwisko = Odwiedza.nazwisko AND sklep = 'Sklep A'; Równoważnie metodą JOIN: SELECT lubi.*, sklep FROM lubi JOIN odwiedza ON lubi.nazwisko = odwiedza.nazwisko WHERE sklep = 'Sklep A';",
+  "category": "SQL"
+ },
+ {
+  "term": "Podzapytania — w FROM i jako wartość",
+  "description": "Wyrażenie SELECT-FROM-WHERE (podzapytanie) może być używane jako wartość w wielu miejscach zapytania głównego, w szczególności w klauzulach FROM i WHERE (przydatne aliasy). Podzapytanie zwracające dokładnie jedną krotkę o jednym atrybucie może być używane jak wartość — jeżeli brak krotek albo jest ich więcej niż jedna, następuje błąd wykonania. Przykład: SELECT sklep FROM Sprzedaje WHERE towar = 'bułka' AND cena = (SELECT cena FROM Sprzedaje WHERE sklep = 'Sklep A' AND towar = 'kajzerka');",
+  "category": "SQL"
+ },
+ {
+  "term": "SELECT DISTINCT — eliminacja duplikatów",
+  "description": "Duplikaty w wyniku eliminuje się składnią SELECT DISTINCT... Uwaga: DISTINCT działa na CAŁE zapytanie (całą krotkę wynikową), nie tylko na wartość obok niego. Przykład: SELECT DISTINCT cena FROM Sprzedaje; — bez DISTINCT każda cena pojawiłaby się tyle razy, ile było par sklep/towar o danej wartości. W funkcjach agregujących DISTINCT stosuje się wewnątrz funkcji: SELECT COUNT(DISTINCT cena) FROM Sprzedaje WHERE towar = 'chleb';",
+  "category": "SQL"
+ },
+ {
+  "term": "Rodzaje złączeń w SQL (JOIN)",
+  "description": "JOIN = INNER JOIN (domyślne, wewnętrzne) — tylko dopasowane wiersze. LEFT OUTER JOIN — wszystkie wiersze relacji po lewej stronie wyrażenia JOIN + dopasowania lub NULL. RIGHT OUTER JOIN — wszystkie wiersze relacji po prawej stronie. FULL OUTER JOIN — WSZYSTKIE wiersze obu relacji. Słowo OUTER można pominąć, gdy podana jest strona (LEFT/RIGHT/FULL JOIN). Równozłączenie: SELECT * FROM tA JOIN tB ON tA.KOL1=tB.KOL3 równoważne SELECT * FROM tA,tB WHERE tA.KOL1=tB.KOL3. Samozłączenie — łączenie tabeli z samą sobą przez aliasy: SELECT * FROM tA x1 JOIN tA x2 ON x1.KOL1=x2.KOL2.",
+  "category": "SQL"
+ },
+ {
+  "term": "Operatory agregujące: COUNT, SUM, AVG, MIN, MAX",
+  "description": "Stosowane w klauzuli SELECT do uzyskania wartości zagregowanych kolumny. COUNT(*) zlicza liczbę wierszy razem z wartościami NULL; COUNT([ALL] kol) zlicza wartości różne od NULL w kolumnie; COUNT(DISTINCT kol) zlicza wartości niepowtarzalne i różne od NULL. AVG([ALL] kol | DISTINCT kol) — średnia (DISTINCT eliminuje duplikaty przed wyznaczeniem). MAX/MIN — jeśli nie ma kwalifikujących się wierszy, zwracają NULL. Przykład: SELECT AVG(cena) FROM Sprzedaje WHERE towar = 'chleb';",
+  "category": "SQL"
+ },
+ {
+  "term": "NULL w operatorach agregujących",
+  "description": "NULL nie jest zaliczany do średniej ani sumy, nie może też być minimum ani maksimum kolumny. Jeżeli w kolumnie nie ma wartości różnych od NULL, wynikiem funkcji agregującej jest NULL. Konsekwencja: SELECT count(*) FROM Sprzedaje WHERE towar='chleb' — liczba wszystkich sklepów sprzedających chleb; SELECT count(cena) FROM Sprzedaje WHERE towar='chleb' — tylko sklepy, które mają ustaloną (niepustą) cenę chleba. Te dwa wyniki mogą się różnić!",
+  "category": "SQL"
+ },
+ {
+  "term": "GROUP BY i ograniczenia klauzuli SELECT przy grupowaniu (ważne)",
+  "description": "GROUP BY z listą atrybutów na końcu SELECT-FROM-WHERE grupuje relację wynikową wg wartości podanych atrybutów; funkcje agregujące działają wewnątrz grup. Przykład: SELECT towar, AVG(cena) FROM Sprzedaje GROUP BY towar; OGRANICZENIE: przy grupowaniu każda kolumna wynikowa w SELECT musi być 1) wynikiem funkcji agregującej, LUB 2) atrybutem wymienionym na liście GROUP BY. Błędne zapytanie (na kolokwium do analizy!): SELECT sklep, MIN(cena) FROM Sprzedaje WHERE towar='chleb'; — sklep nie jest ani zagregowany, ani w GROUP BY; poprawka wymaga dodania GROUP BY.",
+  "category": "SQL"
+ },
+ {
+  "term": "Klauzula HAVING",
+  "description": "HAVING <warunek> umieszcza się PO klauzuli GROUP BY; grupy niespełniające warunku są eliminowane z relacji wynikowej (WHERE filtruje wiersze przed grupowaniem, HAVING filtruje grupy po grupowaniu). Warunki HAVING mogą dotyczyć dowolnej relacji z FROM oraz atrybutów tylko jeśli są to: 1) atrybuty, po których następuje grupowanie, lub 2) atrybuty zagregowane. Przykład: SELECT towar, AVG(cena) FROM Sprzedaje GROUP BY towar HAVING COUNT(sklep) >= 2 OR towar IN (SELECT nazwa FROM Towary WHERE producent = 'Piekarnia B');",
+  "category": "SQL"
+ },
+ {
+  "term": "ORDER BY vs GROUP BY (bardzo ważne — nie mylić!)",
+  "description": "ORDER BY sortuje wynikowe wiersze (ASC rosnąco — domyślnie, DESC malejąco); GROUP BY grupuje wiersze do agregacji — to zupełnie różne klauzule! Kolejność w pełnej składni: SELECT [DISTINCT|ALL] ... FROM ... [WHERE ...] [GROUP BY ...] [HAVING ...] [UNION [ALL] ...] [ORDER BY ...]. Przykłady: SELECT DISTINCT nazwisko FROM uczniowie WHERE wiek BETWEEN 10 AND 15 ORDER BY nazwisko DESC; oraz SELECT nazwisko, COUNT(*) AS c FROM uczniowie GROUP BY nazwisko HAVING c>10 ORDER BY nazwisko ASC;",
+  "category": "SQL"
+ },
+ {
+  "term": "UNION i INTERSECT w SQL",
+  "description": "UNION — suma zbiorów krotek dwóch relacji: SELECT * FROM pracownicy UNION SELECT * FROM zarzad; Warunek: tabele muszą mieć tyle samo kolumn o zgodnych typach (kompatybilność). INTERSECT — przekrój (część wspólna): SELECT Nazwisko FROM pracownicy INTERSECT SELECT Nazwisko FROM zarzad; UNION domyślnie eliminuje duplikaty; UNION ALL je zachowuje.",
+  "category": "SQL"
+ },
+ {
+  "term": "INSERT — dodawanie krotek",
+  "description": "Pojedyncza krotka: INSERT INTO <relacja> VALUES (<lista wartości>); np. INSERT INTO Lubi VALUES ('Abacki', 'chleb'); Ze specyfikacją atrybutów: INSERT INTO Lubi(towar, nazwisko) VALUES ('chleb', 'Abacki'); — powody: uniknięcie pamiętania kolejności atrybutów oraz pozwolenie systemowi na wypełnienie pominiętych atrybutów wartościami domyślnymi. Wiele krotek z podzapytania: INSERT INTO <relacja> (<podzapytanie>); np. INSERT INTO PotencjalniZnajomi (SELECT d2.nazwisko FROM Odwiedza d1, Odwiedza d2 WHERE d1.nazwisko='Abacki' AND d2.nazwisko<>'Abacki' AND d1.sklep=d2.sklep); Na kolokwium na pewno będzie pytanie modyfikujące dane.",
+  "category": "SQL"
+ },
+ {
+  "term": "DELETE i dwuetapowa semantyka usuwania",
+  "description": "DELETE FROM <relacja> WHERE <warunek>; usuwa krotki spełniające warunek. DELETE FROM Lubi; (bez WHERE) opróżnia całą relację. Semantyka jest dwuetapowa: 1) zaznacz WSZYSTKIE krotki spełniające warunek WHERE, 2) usuń zaznaczone. Konsekwencja: przy usuwaniu towarów tak, by dla producenta został co najwyżej jeden (DELETE ... WHERE EXISTS (SELECT ... WHERE producent = t.producent AND nazwa <> t.nazwa)) — jeśli producent ma bułkę i chleb, usunięte zostaną OBIE krotki, bo obie zostały zaznaczone w etapie 1 zanim cokolwiek usunięto.",
+  "category": "SQL"
+ },
+ {
+  "term": "UPDATE — modyfikacja krotek",
+  "description": "UPDATE <relacja> SET <lista przyporządkowań atrybutów> WHERE <warunek>; Przykład — zmiana telefonu: UPDATE Klienci SET nrTel = '55-12-12' WHERE imie = 'Bolek'; Aktualizacja wielu krotek — ustawienie maksymalnej ceny na 4 zł: UPDATE Sprzedaje SET cena = 4.00 WHERE cena > 4.00; Trzy rodzaje modyfikacji danych w SQL: INSERT (dodawanie), DELETE (usuwanie), UPDATE (modyfikacja) — komendy modyfikujące nie zwracają wyników, w przeciwieństwie do zapytań.",
+  "category": "SQL"
+ },
+ {
+  "term": "Widoki (VIEW)",
+  "description": "Widok to „wirtualna tabela\" — relacja definiowana zawartością innych tabel lub widoków, przechowywana w bazie danych. Zastosowania: ograniczanie dostępu do tabel, uproszczenie zapytań, zapewnienie niezależności danych wewnątrz bazy. Składnia: CREATE VIEW <nazwa> AS <zapytanie>; np. CREATE VIEW OdwiedzaneSklepy AS SELECT nazwisko, towar FROM Odwiedza, Sprzedaje WHERE Odwiedza.sklep = Sprzedaje.sklep; Zapytania z użyciem widoków wykonuje się tak samo jak z tabelami: SELECT towar FROM OdwiedzaneSklepy WHERE nazwisko = 'Abacki';",
+  "category": "SQL"
+ },
+ {
+  "term": "Generatory / sekwencje",
+  "description": "Umożliwiają nadawanie unikalnych wartości polom kluczowym — szczególnie ważne w środowisku wielodostępowym. Tworzenie: CREATE SEQUENCE lub CREATE GENERATOR. Pobieranie kolejnych wartości: NEXT VALUE FOR nazwa lub GEN_ID(nazwa, krok) (Firebird). Ustawianie: SET GENERATOR nazwa TO wartosc lub ALTER SEQUENCE nazwa RESTART WITH wartosc. Przykłady: INSERT INTO pracownicy(id_prac, nazwisko) VALUES(GEN_ID(gen_idprac,1),'Kowalski'); ALTER TABLE klienci ADD id_kli2 BIGINT DEFAULT NEXT VALUE FOR gen1; W Firebird generatory generują 64-bitowe liczby całkowite, więc pole kluczowe musi być typu DECIMAL(18,0).",
+  "category": "SQL"
+ },
+ {
+  "term": "Integralność encji vs integralność referencyjna",
+  "description": "Integralność encji: każda tabela musi posiadać klucz główny; wartości klucza głównego muszą być unikalne i różne od NULL; wartość każdego pola musi należeć do zbioru wartości dopuszczalnych (np. ocena 2..6). Mechanizmy DBMS: indeksowanie kluczy głównych, definiowalne restrykcje (constraints). Integralność referencyjna: każda wartość klucza obcego musi być równa jednej z wartości klucza głównego lub może być równa NULL.",
+  "category": "Integralność i transakcje"
+ },
+ {
+  "term": "ON DELETE / ON UPDATE — opcje integralności referencyjnej",
+  "description": "Przy definicji FOREIGN KEY ... REFERENCES można określić zachowanie przy zmianie/usunięciu klucza pierwotnego: NO ACTION — brak operacji na kluczu obcym, ale sprawdzana jest integralność referencyjna i przy jej naruszeniu operacja jest anulowana. CASCADE — zmiana wartości klucza pierwotnego zmienia wartość klucza obcego; usunięcie klucza pierwotnego usuwa krotki z kluczem obcym. SET NULL — klucz obcy przyjmuje wartość NULL. SET DEFAULT — klucz obcy przyjmuje wartość domyślną. Przykład: ALTER TABLE WYPOZYCZONE ADD CONSTRAINT K2 FOREIGN KEY (ID) REFERENCES KSIAZKI ON DELETE CASCADE ON UPDATE CASCADE;",
+  "category": "Integralność i transakcje"
+ },
+ {
+  "term": "Role i GRANT — kontrolowanie dostępu do danych",
+  "description": "Model: Użytkownicy → Role → Prawa; rola to grupa uprawnień. Tworzenie: CREATE ROLE nazwa; DROP ROLE nazwa; Nadawanie uprawnień: GRANT <uprawnienia> ON [TABLE] nazwa_tabeli TO <lista_ról>; uprawnienia: ALL | SELECT | DELETE | INSERT | UPDATE [(kolumny)]; można też GRANT rola TO użytkownicy / PUBLIC oraz GRANT EXECUTE ON PROCEDURE. Modyfikatory: WITH GRANT OPTION (odbiorca może dalej nadawać uprawnienia), WITH ADMIN OPTION. Przykład: GRANT ALL ON TABLE ksiazki TO obsluga_tech WITH GRANT OPTION; GRANT obsluga_tech TO Wlodek, Waldek;",
+  "category": "Integralność i transakcje"
+ },
+ {
+  "term": "Transakcja — definicja i przykład",
+  "description": "Transakcja to sekwencja logicznie powiązanych operacji na bazie danych, przeprowadzających bazę z jednego stanu spójnego do drugiego stanu spójnego. Klasyczny przykład: przelew bankowy — 1) zmniejszenie stanu konta 1, 2) zwiększenie stanu konta 2; zagrożenia to awaria i współbieżność. SQL: SET TRANSACTION; UPDATE konta SET stan = stan - N WHERE id_konta = A; UPDATE konta SET stan = stan + N WHERE id_konta = B; COMMIT;",
+  "category": "Integralność i transakcje"
+ },
+ {
+  "term": "ACID — cechy transakcji (najprawdopodobniej na kolokwium!)",
+  "description": "Niepodzielność (Atomicity) — wykonane są wszystkie elementy składowe transakcji albo żaden; zbiór operacji transakcji jest niepodzielny. Spójność (Consistency) — transakcja przeprowadza bazę z jednego stanu spójnego do innego stanu spójnego; nie może naruszać ograniczeń integralnościowych. Izolacja (Isolation) — transakcje są od siebie logicznie odseparowane; mimo współbieżnego wykonywania widzą stan bazy tak, jakby były wykonywane sekwencyjnie. Trwałość (Durability) — wyniki zatwierdzonych transakcji nie mogą zostać utracone w wyniku awarii systemu; zatwierdzone dane muszą być odtwarzalne.",
+  "category": "Integralność i transakcje"
+ },
+ {
+  "term": "Bazy danych GIS (PostGIS)",
+  "description": "GIS (Geographical Information System) — systemy informacji geograficznej ze wsparciem dla operacji związanych z rozmieszczeniem przestrzennym danych, np. PostGIS (rozszerzenie PostgreSQL). Przykładowe funkcje przestrzenne: ST_Distance (odległość między geometriami), ST_Buffer(geometry, distance) (bufor wokół geometrii), ST_Intersection / ST_Intersects (część wspólna / test przecięcia). Przykład: wyznaczanie odległości między dziełami sztuki po współrzędnych geograficznych czy przecięcia tras kolejowych z granicami dzielnic.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Klucz-wartość: DynamoDB — Query vs Scan",
+  "description": "DynamoDB (AWS) nie ma dedykowanego języka zapytań (operuje się przez API/SDK). Klucz główny: Partition Key + opcjonalnie Sort Key; schemat definiowany per element (item). Query — trzeba podać nazwę klucza partycji, warunek może dotyczyć klucza sortowania; tanie przy wysokiej kardynalności kluczy. Scan — czyta WSZYSTKIE dane tabeli, warunki dostępne tylko przez filtry — kosztowny dla dużych tabel. Redis przechowuje różne struktury: stringi, listy, hash tables (obiekty), sorted sets.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Podział SZBD — kryteria podziału",
+  "description": "Systemy zarządzania bazami danych dzieli się według: 1) wykorzystywanego modelu danych — hierarchiczne, sieciowe, relacyjne, obiektowo-relacyjne, obiektowe, semistrukturalne (XML), NoSQL (klucz-wartość, kolumnowe, dokumentowe, grafowe); 2) liczby węzłów — scentralizowane i rozproszone; 3) celu stosowania — OLTP, OLAP, GIS.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Grafowe bazy danych — Neo4j i Cypher",
+  "description": "Bazy oparte na grafach (graph stores) przechowują dane jako węzły i relacje między nimi — przykład: Neo4j. Posiadają własny język zapytań Cypher Query Language, np. MATCH (:Person {name: 'Jennifer'})-[:WORKS_FOR]->(company:Company) RETURN company — znajduje firmę, w której pracuje osoba Jennifer, poruszając się po relacji WORKS_FOR.",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "SQL do danych JSON — Athena/Presto (AWS)",
+  "description": "AWS Athena (silnik Presto) pozwala wykonywać zapytania SQL bezpośrednio na danych JSON. Kluczowe funkcje: json_extract(users, '$.projects') — wyciąga fragment JSON po ścieżce; json_extract_scalar — wyciąga wartość skalarną; CAST(... AS ARRAY(MAP(VARCHAR, JSON))) — rzutowanie na tablicę map; UNNEST(projects_array) — rozwija tablicę do wierszy, po których można agregować (GROUP BY, COUNT).",
+  "category": "Podział SZBD"
+ },
+ {
+  "term": "Notacja Chena — symbole",
+  "description": "Prostokąt — zbiór encji. Podwójny prostokąt — słaby zbiór encji. Owal — atrybut (do atrybutu można podłączyć inny atrybut złożony). Podwójny owal — atrybut wielowartościowy. Owal przerywany — atrybut wyprowadzany (derived). Podkreślenie atrybutu — klucz podstawowy; przerywane podkreślenie — atrybut dyskryminujący słabego zbioru encji. Romb — związek. Podwójny romb — związek identyfikujący (wspierający) dla słabego zbioru encji. Podwójna linia — pełne (totalne) uczestnictwo zbioru encji w związku.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "Notacja Barkera — symbole",
+  "description": "Encja to prostokąt z listą atrybutów w środku. Oznaczenia atrybutów: # — atrybut kluczowy; * — atrybut z wartością obowiązkową; o — atrybut z wartością opcjonalną. Związki: linia przerywana = przynależność opcjonalna, linia ciągła = obowiązkowa; „kurza stopka\" (crow's foot) = strona „wiele\". Związek wchodzący w skład identyfikatora encji (słabe encje) oznacza się krótką prostopadłą kreską. Notacja Barkera nie dopuszcza atrybutów na związkach.",
+  "category": "Model E-R"
+ },
+ {
+  "term": "SQL — typy danych (przegląd)",
+  "description": "Całkowite: SMALLINT (-32768..32767), INTEGER (do 2147483647), BIGINT. Zmiennoprzecinkowe: FLOAT (ok. 1.175*10^-38..3.402*10^38 — uwaga na precyzję!), DOUBLE PRECISION. Dokładne dziesiętne: NUMERIC(p,s) / DECIMAL(10,3) — format PPPPPPP.SSS (p cyfr łącznie, s po przecinku). Znakowe: CHAR(n) — stała długość, VARCHAR(n) — zmienna. Data/czas: DATE (np. 'mm-dd-yy'), TIME ('hh:mm:ss'), TIMESTAMP. BLOB — Binary Large Object (duże obiekty binarne).",
+  "category": "SQL"
+ },
+ {
+  "term": "Operatory SQL: arytmetyczne, znakowe, logiczne",
+  "description": "Arytmetyczne: +, -, *, /. Znakowe: || — łączenie (konkatenacja) ciągów znaków, np. 'miasto:' || MIASTO. Logiczne: NOT — zaprzeczenie wyrażenia, AND — logiczne „i\" (oba warunki spełnione), OR — logiczne „lub\", np. WHERE A=1 OR B=1. Inne przydatne: BETWEEN x AND y — przedział domknięty, np. WHERE wiek BETWEEN 10 AND 15.",
+  "category": "SQL"
+ },
+ {
+  "term": "Transformacja związków ternarnych",
+  "description": "Dla każdego związku o stopniu >2: utwórz nową relację Z i umieść w niej klucze obce wskazujące na klucze podstawowe relacji R, S, T reprezentujących encje wchodzące w skład związku. Kluczem podstawowym Z staje się kombinacja wszystkich kluczy obcych o stopniu asocjacji „wiele\" wchodzących w skład Z. (Wg wykładu temat mało ważny, ale zasada warta znajomości.)",
+  "category": "Transformacja ER→relacyjny"
+ },
+ {
+  "term": "Eventual Consistency",
+  "description": "Model spójności oferowany przez część systemów NoSQL: system dopuszcza zwrócenie nie najnowszej informacji — dane po aktualizacji w jednym węźle propagują się do pozostałych z opóźnieniem, ale docelowo (eventually) wszystkie repliki osiągną ten sam stan. To cena rezygnacji z natychmiastowej spójności (C w teorii CAP) na rzecz dostępności (A) w systemach kategorii AP, jak Cassandra, Riak czy CouchDB.",
+  "category": "Podział SZBD"
+ }
+];
+
+  let order = [];
+  let pos = 0;
+  let revealed = false;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function resetDeck(doShuffle) {
+    order = doShuffle ? shuffle(FLASHCARDS_DATA.map((_, i) => i)) : FLASHCARDS_DATA.map((_, i) => i);
+    pos = 0;
+    revealed = false;
+    render();
+  }
+
+  function currentCard() {
+    return FLASHCARDS_DATA[order[pos]];
+  }
+
+  function render() {
+    const card = currentCard();
+    const cardArea = document.getElementById('cardArea');
+    const controlsArea = document.getElementById('controlsArea');
+
+    cardArea.innerHTML = `
+      <div class="card" id="cardEl">
+        ${card.category ? `<div class="category">${escapeHtml(card.category)}</div>` : ''}
+        <div class="term">${escapeHtml(card.term)}</div>
+        <div class="hint ${revealed ? 'hidden-when-revealed' : ''}">Kliknij albo wciśnij spację, żeby sprawdzić odpowiedź</div>
+        <div class="description ${revealed ? '' : 'hidden'}">${escapeHtml(card.description)}</div>
+      </div>
+    `;
+
+    document.getElementById('cardEl').addEventListener('click', toggleReveal);
+
+    controlsArea.innerHTML = `
+      <button id="shuffleBtn" class="icon-btn" title="Przetasuj fiszki">🔀 Przetasuj</button>
+      <div class="nav-group">
+        <button id="prevBtn" ${pos === 0 ? 'disabled' : ''}>← Poprzednia</button>
+        <button id="revealBtn" class="primary">${revealed ? 'Ukryj' : 'Pokaż odpowiedź'}</button>
+        <button id="nextBtn">${pos === order.length - 1 ? 'Zakończ' : 'Następna →'}</button>
+      </div>
+    `;
+
+    document.getElementById('shuffleBtn').onclick = () => resetDeck(true);
+    document.getElementById('prevBtn').onclick = goPrev;
+    document.getElementById('revealBtn').onclick = toggleReveal;
+    document.getElementById('nextBtn').onclick = goNext;
+
+    document.getElementById('counter').textContent = `${pos + 1} / ${order.length}`;
+    document.getElementById('progressFill').style.width = `${((pos + (revealed ? 1 : 0.3)) / order.length) * 100}%`;
+  }
+
+  function toggleReveal() {
+    revealed = !revealed;
+    render();
+  }
+
+  function goNext() {
+    if (pos < order.length - 1) {
+      pos++;
+      revealed = false;
+      render();
+    } else {
+      showDone();
+    }
+  }
+
+  function goPrev() {
+    if (pos > 0) {
+      pos--;
+      revealed = false;
+      render();
+    }
+  }
+
+  function showDone() {
+    document.getElementById('cardArea').innerHTML = `
+      <div class="done-screen">
+        <h2>To wszystkie fiszki w tej talii 🎉</h2>
+        <p>Możesz przejść jeszcze raz w nowej losowej kolejności.</p>
+      </div>
+    `;
+    document.getElementById('controlsArea').innerHTML = `
+      <div class="nav-group" style="margin: 0 auto;">
+        <button id="restartBtn" class="primary">Zacznij od nowa (nowa kolejność)</button>
+      </div>
+    `;
+    document.getElementById('restartBtn').onclick = () => resetDeck(true);
+    document.getElementById('progressFill').style.width = '100%';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); toggleReveal(); }
+    if (e.code === 'ArrowRight') goNext();
+    if (e.code === 'ArrowLeft') goPrev();
+  });
+
+  resetDeck(true);
+</script>
+
+</body>
+</html>
